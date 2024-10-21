@@ -1,4 +1,11 @@
-# textfox
+ 
+```
+   __            __  ____          
+  / /____  _  __/ /_/ __/___  _  __
+ / __/ _ \| |/_/ __/ /_/ __ \| |/_/
+/ /_/  __/>  </ /_/ __/ /_/ />  <  
+\__/\___/_/|_|\__/_/  \____/_/|_|  
+```
 
 _a port of spotify tui to firefox_
 
@@ -7,7 +14,7 @@ _a port of spotify tui to firefox_
 > is still a bit immature, but progress i being made, I welcome PR's from anyone
 > wanting to contribute.
 
-## preview
+## Preview
 
 ![image](https://github.com/adriankarlen/textfox/blob/main/misc/preview.png)
 
@@ -28,6 +35,94 @@ _a port of spotify tui to firefox_
 > If you don't want to use the provided user.js, please read through it and
 > apply the settings in `about:config` manually. These are needed for the css to
 > work.
+
+### Nix
+This repo includes a Nix flake that exposes a home-manager module that installs textfox and sidebery.
+
+To enable the module, add the repo as a flake input, import the module, and enable textfox
+
+If your home-manager module is defined within your `nixosConfigurations`:
+```nix
+# flake.nix
+
+{
+
+    inputs = {
+       # ---Snip---
+       home-manager = {
+         url = "github:nix-community/home-manager";
+         inputs.nixpkgs.follows = "nixpkgs";
+       };
+
+       textfox.url = "github:adriankarlen/textfox";
+       # ---Snip---
+    }
+
+    outputs = {nixpkgs, home-manager, ...} @ inputs: {
+        nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit inputs; };
+          modules = [
+          home-manager.nixosModules.home-manager
+            {
+             # Must pass in inputs so we can access the module
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+              };
+            }
+         ];
+      };
+   } 
+}
+```
+```nix
+# home.nix
+
+imports = [ inputs.textfox.homeManagerModules.default ];
+
+textfox = {
+    enable = true;
+    profile = "firefox profile name here";
+};
+
+```
+
+
+If you use `home-manager.lib.homeManagerConfiguration`
+```nix
+# flake.nix
+
+    inputs = {
+       # ---Snip---
+       home-manager = {
+         url = "github:nix-community/home-manager";
+         inputs.nixpkgs.follows = "nixpkgs";
+       };
+
+       textfox.url = "github:adriankarlen/textfox";
+       # ---Snip---
+    }
+
+    outputs = {nixpkgs, home-manager, textfox ...}: {
+        homeConfigurations."user@hostname" = home-manager.lib.homeManagerConfiguration {
+         pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
+         modules = [
+            textfox.homeManagerModules.default
+        # ...
+        ];
+     };
+  };
+}
+```
+```nix
+# home.nix
+
+textfox = {
+    enable = true;
+    profile = "firefox profile name here";
+};
+
+```
 
 ### Sidebery
 
