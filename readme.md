@@ -9,27 +9,50 @@
 
 _a port of spotify tui to firefox_
 
-> [!NOTE]
-> I am very shocked at how big this got so quickly, I would say that the project
-> is still a bit immature, but progress i being made, I welcome PR's from anyone
-> wanting to contribute.
-
 ## Preview
 
-![image](https://github.com/adriankarlen/textfox/blob/main/misc/preview.png)
+![image](https://github.com/adriankarlen/textfox/blob/main/misc/vertical-tabs.png)
+
+![image](https://github.com/adriankarlen/textfox/blob/main/misc/horizontal-tabs.png)
+
+> [!NOTE]
+> The color scheme used in the pictures is [Rosé Pine Moon](https://github.com/rose-pine/firefox).
+> `textfox` tries to not hard code any colors, [Firefox Color extension](https://addons.mozilla.org/en-US/firefox/addon/firefox-color/) is the
+> recommended approach to coloring Firefox with `textfox`.
 
 ## Prequisites
 
-- Sidebery
+- Sidebery (optional)
 
 ## Installation
+
+### Installation script
+
+1. Download/clone the repo.
+2. Inside the download run `sh tf-install.sh` and follow the script
+   instructions.
+
+> [!IMPORTANT]
+> This script automates file writes, use with caution. 
+
+> [!NOTE]
+> The installation script copies to contents of the repos `chrome` directory to
+> the path specified, this way your `config.css` or any other `css`-files not
+> part of the repo will be kept.
+
+### Manual
 
 1. Download the files
 2. Go to `about:profiles`
 3. Find your profile -- ( _„This is the profile in use and it cannot be deleted.”_ )
 4. Open the profile's root directory
 5. Move the files chrome directory and user.js there
-6. Restart firefox
+6. Restart Firefox
+
+> [!IMPORTANT]
+> textfox now supports horizontal tabs, to enable them change the
+> `--tf-display-horizontal-tabs` variable in your `config.css` to `block`. See
+> [CSS configurations](#css-configurations) for more info.
 
 > [!NOTE]
 > If you don't want to use the provided user.js, please read through it and
@@ -37,44 +60,48 @@ _a port of spotify tui to firefox_
 > work.
 
 ### Nix
+
 This repo includes a Nix flake that exposes a home-manager module that installs textfox and sidebery.
 
-To enable the module, add the repo as a flake input, import the module, and enable textfox
+To enable the module, add the repo as a flake input, import the module, and enable textfox.
 
-If your home-manager module is defined within your `nixosConfigurations`:
+<details><summary>Install using your home-manager module defined within your `nixosConfigurations`:</summary>
+
 ```nix
-# flake.nix
 
-{
+  # flake.nix
 
-    inputs = {
-       # ---Snip---
-       home-manager = {
-         url = "github:nix-community/home-manager";
-         inputs.nixpkgs.follows = "nixpkgs";
-       };
+  {
 
-       textfox.url = "github:adriankarlen/textfox";
-       # ---Snip---
-    }
+      inputs = {
+         # ---Snip---
+         home-manager = {
+           url = "github:nix-community/home-manager";
+           inputs.nixpkgs.follows = "nixpkgs";
+         };
 
-    outputs = {nixpkgs, home-manager, ...} @ inputs: {
-        nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
-          home-manager.nixosModules.home-manager
-            {
-             # Must pass in inputs so we can access the module
-              home-manager.extraSpecialArgs = {
-                inherit inputs;
-              };
-            }
-         ];
-      };
-   } 
-}
+         textfox.url = "github:adriankarlen/textfox";
+         # ---Snip---
+      }
+
+      outputs = {nixpkgs, home-manager, ...} @ inputs: {
+          nixosConfigurations.HOSTNAME = nixpkgs.lib.nixosSystem {
+            specialArgs = { inherit inputs; };
+            modules = [
+            home-manager.nixosModules.home-manager
+              {
+               # Must pass in inputs so we can access the module
+                home-manager.extraSpecialArgs = {
+                  inherit inputs;
+                };
+              }
+           ];
+        };
+     } 
+  }
 ```
 ```nix
+
 # home.nix
 
 imports = [ inputs.textfox.homeManagerModules.default ];
@@ -82,15 +109,20 @@ imports = [ inputs.textfox.homeManagerModules.default ];
 textfox = {
     enable = true;
     profile = "firefox profile name here";
+    config = {
+        # Optional config
+    };
 };
-
 ```
+</details>
 
+<details><summary>Install using `home-manager.lib.homeManagerConfiguration`:</summary>
 
-If you use `home-manager.lib.homeManagerConfiguration`
 ```nix
-# flake.nix
 
+  # flake.nix
+
+  {
     inputs = {
        # ---Snip---
        home-manager = {
@@ -104,25 +136,65 @@ If you use `home-manager.lib.homeManagerConfiguration`
 
     outputs = {nixpkgs, home-manager, textfox ...}: {
         homeConfigurations."user@hostname" = home-manager.lib.homeManagerConfiguration {
-         pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
-         modules = [
-            textfox.homeManagerModules.default
-        # ...
-        ];
-     };
+            modules = [
+                textfox.homeManagerModules.default
+                # ...
+            ];
+        };
+    };
+  }
+```
+  ```nix
+
+  # home.nix
+
+  textfox = {
+      enable = true;
+      profile = "firefox profile name here";
+      config = {
+          # Optional config
+      };
   };
-}
-```
+  ```
+</details>
+
+<details><summary>Configuration options:</summary>
+
+All configuration options are optional and can be set as this example shows (real default values [can be found below](#defaults)):
+
 ```nix
-# home.nix
 
-textfox = {
-    enable = true;
-    profile = "firefox profile name here";
-};
-
+  textfox = {
+      enable = true;
+      profile = "firefox profile name here";
+      config = {
+        background = {
+          color = "#123456";
+        };
+        border = {
+          color = "#654321";
+          width = "4px";
+          transition = "1.0s ease";
+          radius = "3px";
+        };
+        displayHorizontalTabs = true;
+        displayNavButtons = true;
+        displaySidebarTools  = false;
+        newtabLogo = "   __            __  ____          \A   / /____  _  __/ /_/ __/___  _  __\A  / __/ _ \\| |/_/ __/ /_/ __ \\| |/_/\A / /_/  __/>  </ /_/ __/ /_/ />  <  \A \\__/\\___/_/|_|\\__/_/  \\____/_/|_|  ";
+        font = { 
+          family = "Fira Code";
+          size = "15px";
+          accent = "#654321";
+        };
+        sidebery = {
+          margin = "1.0rem";
+        };
+      };
+  };
 ```
+</details>
 
 ### Sidebery
 
@@ -153,10 +225,46 @@ the same settings are used (these can be set in about:config).
 | `shyfox.enable.context.menu.icons` | Many context menu items get icons | No icons in context menus |
 
 ### CSS configurations
-Inside `variables.css` reused variables are stored at the top, tweak those to
-your liking without any fear of breaking stuff.
+The theme ships with a `defaults.css`, this file can be overriden by creating a
+`config.css` inside the chrome directory. For instance if I'd want to change the
+border radius it would look like this:
 
-### Acknowledgements
+```css
+/* path: chrome/config.css */
+:root {
+  --tf-rounding: 4px;
+}
+```
+
+#### Defaults
+```css
+:root {
+  --tf-font-family: "SF Mono", Consolas, monospace; /* Font family of config */
+  --tf-font-size: 14px; /* Font size of config */
+  --tf-accent: var(--toolbarbutton-icon-fill); /* Accent color used, eg: color when hovering a container  */
+  --tf-bg: var(--lwt-accent-color, -moz-dialog); /* Background color of all elements, tab colors derive from this */
+  --tf-border: var(--arrowpanel-border-color, --toolbar-field-background-color); /* Border color when not hovered */
+  --tf-border-transition: 0.2s ease; /* Smooth color transitions for borders */
+  --tf-border-width: 2px; /* Width of borders */
+  --tf-rounding: 0px; /* Border radius used through out the config */
+  --tf-margin: 0.8rem; /* Margin used between elements in sidebery */
+  --tf-display-horizontal-tabs: none; /* If horizontal tabs should be shown, none = hidden, block = shown */
+  --tf-display-nav-buttons: none; /* If the navigation buttons (back, forward) should be shown, none = hidden, flex = shown */
+  --tf-display-sidebar-tools: flex; /* If the "Customize sidebar" button on the sidebar should be shown, none = hidden, flex = shown */ 
+  --tf-newtab-logo: "   __            __  ____          \A   / /____  _  __/ /_/ __/___  _  __\A  / __/ _ \\| |/_/ __/ /_/ __ \\| |/_/\A / /_/  __/>  </ /_/ __/ /_/ />  <  \A \\__/\\___/_/|_|\\__/_/  \\____/_/|_|  ";
+}
+```
+
+### Changing the new tab logo
+
+The new tab logo can be any string you want, to create a string with line breaks
+add a `\A` at every line break, also make sure to break any backslashes, eg. if
+you want a `\`, you need to write `\\`. I used [this tool](https://www.patorjk.com/software/taag/#p=display&f=Slant&t=textfox)
+to create the current logo.
+
+Wanna hide the logo? Simply pass an empty string as the logo.
+
+## Acknowledgements
 
 [Naezr](https://github.com/Naezr) - Icon logic and some sideberry logic.
 

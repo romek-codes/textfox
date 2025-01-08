@@ -1,3 +1,4 @@
+@import url("../overwrites.css");
 /*== ShyFox Sidebery ===============================================================================================================================
 
 Styles for Sidebery extension
@@ -12,27 +13,32 @@ Styles for Sidebery extension
   /* wrap start */
 
   #root.root {
-    --general-border-radius: var(--rounding) !important;
+    --general-border-radius: var(--tf-rounding) !important;
     --general-margin: 8px !important;
-    --tabs-font: var(--font-size) var(--font-family) !important;
+    --tabs-font: var(--tf-font-size) var(--tf-font-family) !important;
 
     --button-size: 35px;
     --pin-favicon-size: 30px;
 
-    --nav-btn-margin: calc(var(--margin) / 2) !important;
+    --nav-btn-margin: calc(var(--tf-margin) / 2) !important;
     --nav-btn-width: var(--button-size) !important;
     --nav-btn-height: var(--button-size) !important;
-    --nav-btn-len-margin: calc(var(--rounding) / 4) !important;
+    --nav-btn-len-margin: calc(var(--tf-rounding) / 4) !important;
 
-    --audio-btn-round-margin: calc(var(--rounding) / 2) !important;
+    --audio-btn-round-margin: calc(var(--tf-rounding) / 2) !important;
 
     --tabs-audio-btn-width: 22px !important;
     --tabs-margin: 6px !important;
     --tabs-height: var(--button-size) !important;
-    --tabs-inner-gap: calc(var(--margin) / 2) !important;
-    --tabs-border-radius: var(--rounding) !important;
+    --tabs-inner-gap: calc(var(--tf-margin) / 2) !important;
+    --tabs-border-radius: var(--tf-rounding) !important;
 
     --frame-el-overlay-selected-border: var(--s-toolbar-fg) !important;
+    --frame-el-overlay-hover-bg: color-mix(
+      in hsl,
+      currentColor 4%,
+      var(--toolbar-bg)
+    ) !important;
     --toolbar-el-overlay-selected-border: var(--s-toolbar-fg) !important;
     --status-notice: var(--s-toolbar-fg) !important;
   }
@@ -51,6 +57,12 @@ Styles for Sidebery extension
     ) !important;
 
     height: calc(((100vw - var(--tabs-margin)) / 3.6) / var(--m)) !important;
+  }
+
+  /* full-width titles */
+  #root[data-pinned-tabs-list="true"] .PinnedTabsBar .tab-wrapper .Tab {
+    --n: 1 !important;
+    --m: 1.4 !important;
   }
 
   /* 1 pinned tab */
@@ -166,15 +178,19 @@ Styles for Sidebery extension
 
   /* accent colored selection */
   ::selection {
-    background: color-mix(in hsl, var(--s-toolbar-fg) 20%, transparent) !important;
+    background: color-mix(
+      in hsl,
+      var(--s-toolbar-fg) 20%,
+      transparent
+    ) !important;
   }
 
   /* notification */
   .notification {
-    border-radius: var(--rounding) !important;
+    border-radius: var(--tf-rounding) !important;
     &::after {
-      top: calc(var(--rounding) / 4 + 3px) !important;
-      right: calc(var(--rounding) / 4 + 3px) !important;
+      top: calc(var(--tf-rounding) / 4 + 3px) !important;
+      right: calc(var(--tf-rounding) / 4 + 3px) !important;
     }
   }
 } /* wrap end */
