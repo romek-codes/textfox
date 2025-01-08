@@ -26,7 +26,8 @@
 */
 #identity-box[pageproxystate="valid"] {
   &.verifiedDomain {
-    #identity-icon-box,
+    /* Fix add bookmark popup dialog not showing up */
+    /* #identity-icon-box, */
     #identity-permission-box:not([hasSharingIcon]),
     #permissions-granted-icon {
       display: none !important;
